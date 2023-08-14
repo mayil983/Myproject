@@ -1,21 +1,3 @@
----
-- name: Ansible Create user functionlity module demo
-  hosts: web # Defining the remote server inventory host group
-	# Defining the remote server where the ansible create user module 
-  # will manage the objects
-  remote_user: ubuntu # Using Remote user as ubuntu
-  tasks:
-
-	# name - Defines the username that is present or to create
-	# groups - Adds users in secondary groups or use groups
-	# state: present - Creates a user or works with a user
-	# state: absent - Deletes a user
-	# shell - Specifies shell-type a user can work on
-	# home - Sets a user’s home directory
-	# createhome: yes - Create a home directory for a user 
-	# createhome: no - Do not create a home directory for a user
-
-	# Creating the user Adam Listek 
     - name: Add the user 'Adam Listek' with a specific uid and a primary group of 'sudo'
       ansible.builtin.user:
         name: adamlis
