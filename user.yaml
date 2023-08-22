@@ -1,6 +1,6 @@
 ---
 - name: add user
-  hosts: all
+  hosts: test
   vars:
     ansible_host_key_checking: false 
   become: true
