@@ -8,5 +8,5 @@
         - name: create a user name vasee
           user:
                 name: man
-                uid: 5002
+                uid: 5062
                 state: present
