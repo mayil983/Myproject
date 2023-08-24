@@ -1,6 +1,12 @@
 ---
-- name: checking connection 
+- name: add user
   hosts: all
+  vars:
+    ansible_host_key_checking: false 
+  become: true
   tasks:
-        - name: pinging a server to check the connectivity
-          action: ping
+        - name: create a user name vaganan
+          user:
+                name: vaganan
+                uid: 5622
+                state: present
