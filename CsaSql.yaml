@@ -1,0 +1,138 @@
+---
+- name: Starting SQL Installation
+  hosts: STN-Ivs,STN-Ma
+    # vars_files:
+    #  - Sqlvars/vars.yml
+  tasks:
+    - name: Adding IGT Services to the local Admin
+      win_group_membership:
+        name: "{{ LocalGroupName }}"
+        members:
+          - "{{ SVCAccountName }}"
+        state: present
+
+- name: Set the log on user to a domain account
+  hosts: STN-Ivs
+    # vars_files:
+    #- Sqlvars/vars.yml
+  tasks:
+    - name: Adding IGT Services to MSSQLSERVER and SQL SERVER Agent
+      win_service:
+        name: 'MSSQL$IVS'
+        state: restarted
+        username: "{{SQLSVCAccountName}}"
+        password: "{{SQLSVCpassword}}"
+        name: 'SQLAgent$IVS'
+        state: restarted
+        username: "{{SQLSVCAccountName}}"
+        password: "{{SQLSVCpassword}}"
+
+- name: Set the log on user to a domain account
+  hosts: STN-Ma
+    # vars_files:
+    #- Sqlvars/vars.yml
+  tasks:
+    - name: Adding IGT Services to MSSQLSERVER and SQL SERVER Agent
+      win_service:
+        name: 'MSSQL$MA'
+        state: restarted
+        username: "{{SQLSVCAccountName}}"
+        password: "{{SQLSVCpassword}}"
+        name: 'SQLAgent$MA'
+        state: restarted
+        username: "{{SQLSVCAccountName}}"
+        password: "{{SQLSVCpassword}}"
+
+
+
+- name: Set service startup mode to auto and ensure it is started
+  hosts: STN-Ivs,STN-Ma
+  tasks:
+    - name: Enable SQL Browser Service
+      ansible.windows.win_service:
+  name: SQL Server Browser
+        start_mode: auto
+        state: started
+
+- name: Create DB shells on MA Server
+  hosts: STN-Ma
+    #vars:
+    #sql_query: "Documents\createDBMA.sql"
+  tasks:
+    - win_shell: |
+       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createDBMA.sql" -querytimeout 180
+      # register: response
+
+- name: Create DB shells on MA Server
+  hosts: STN-Ivs
+    #vars:
+    #sql_query: "Documents\createDBMA.sql"
+  tasks:
+    - win_shell: |
+        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\CreateDBIVS.sql" -querytimeout 180
+
+
+- name: Running IPS steps
+  hosts: STN-Ivs,STN-Ma
+  vars_prompt:
+    - name: UserInput
+      prompt: "Please proceed with the IPS steps manually by selecring the required Installers in sql  Servers \n Press [y] to continue"
+      private: false
+  tasks:
+    - name: Proceeding to the furter steps in Sql Install
+      when: UserInput == "y"
+      debug:
+        msg: "Proceeding to the further steps in Sql Install"
+
+    - name: Exiting the Installation
+      when: UserInput == "n"
+      fail:
+        msg: "you selected not to do the IPS steps"
+
+- name: Create All users in IVS  Server
+  hosts: STN-Ivs
+          #  vars_files:
+          #    - Sqlvars/vars.yml
+  tasks:
+    - win_shell: |
+         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
+
+- name: Create All users in MA Server
+  hosts: STN-Ma
+          #  vars_files:
+          #    - Sqlvars/vars.yml
+  tasks:
+     - win_shell: |
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
+
+        #- name: Running Index Script
+        #  hosts: STN-Ivs,STN-Ma
+        #  vars_files:
+        #    -Sqlvars/vars.yaml
+        #  tasks:
+        #   - name: Checking table maager Db
+        #     when: "{{TableManger}}"
+        #     win-shell: |
+        #       -set-fact:  Enterpriseedition = "Invoke-CsaSqlCommand -serverName '{{$tableManagerServer.name}}' -instanceName '{{$tableManagerServer.fullinstanceName}}' -databaseName $MasterDB -Query 'SELECT SERVERPROPERTY('Edition') as Edition'"
+        #     register: "{{Enterpriseedition}}"
+        #     when: "{{Enterpriseedition}}"
+        #     win-shell: Get-Content "$PSScriptRoot\database\TableManager_Enterprise.sql"
+        #     when: "{{Enterpriseedition}}" is not true
+        #     win-shell: get-content "$PSScriptRoot\database\TableManager_Index.sql"
+        #   - name: Tablemanager is not true
+        #     when: "{{Tablemanager}}" is not true
+        #     win-shell: "Invoke-CsaSqlCommand -serverName '{{tableManagerServer.name}}' -instanceName '{{tableManagerServer.fullinstanceName}}' -databaseName '{{db}}' -query '{{}}'"
+        #
+- name: Running Index Script
+  hosts: STN-Ma
+  vars:
+        RunIndex: false
+  tasks:
+        - name: executing index script
+          when: RunIndex == "true"
+          win_shell: |
+              Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
+              Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "Documents\Range_MA.sql" -querytimeout 180
+              Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "Documents\Range_PM.sql" -querytimeout 180
+
+                 
