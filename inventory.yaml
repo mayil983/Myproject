@@ -6,8 +6,8 @@ ansible_user=STNIGTLAB\igtadmin
 ansible_password=IGTtest1
 ansible_connection=winrm
 ansible_python_interpreter=/usr/bin/python
-ansible_port=5986
-ansible_winrm_transport=CredSSP
+ansible_port=5985
+ansible_winrm_transport=kerberos
 ansible_winrm_server_cert_validation=ignore
 
 [STN-Ma]
@@ -18,6 +18,6 @@ ansible_user=STNIGTLAB\igtadmin
 ansible_password=IGTtest1
 ansible_connection=winrm
 ansible_python_interpreter=/usr/bin/python
-ansible_port=5986
-ansible_winrm_transport=CredSSP
+ansible_port=5985
+ansible_winrm_transport=kerberos
 ansible_winrm_server_cert_validation=ignore
