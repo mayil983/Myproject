@@ -50,7 +50,7 @@
   tasks:
     - name: Enable SQL Browser Service
       ansible.windows.win_service:
-  name: SQL Server Browser
+        name: SQL Server Browser
         start_mode: auto
         state: started
 
