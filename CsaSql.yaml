@@ -61,7 +61,7 @@
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "createDBMA.sql" -querytimeout 180
+       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createDBMA.sql" -querytimeout 180
       # register: response
 
 - name: Create DB shells on MA Server
@@ -70,7 +70,7 @@
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "CreateDBIVS.sql" -querytimeout 180
+        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\CreateDBIVS.sql" -querytimeout 180
 
 
 - name: Running IPS steps
@@ -96,7 +96,7 @@
           #    - Sqlvars/vars.yml
   tasks:
     - win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "createallusers.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
 - name: Create All users in MA Server
   hosts: STN-Ma
