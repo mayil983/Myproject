@@ -61,7 +61,7 @@
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createDBMA.sql" -querytimeout 180
+       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "$PSScriptRoot\createDBMA.sql" -querytimeout 180
       # register: response
 
 - name: Create DB shells on MA Server
@@ -70,23 +70,23 @@
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\CreateDBIVS.sql" -querytimeout 180
+        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "$PSScriptRoot\CreateDBIVS.sql" -querytimeout 180
 
 
 - name: Running IPS steps
   hosts: STN-Ivs,STN-Ma
-  vars_prompt:
-    - name: UserInput
-      prompt: "Please proceed with the IPS steps manually by selecring the required Installers in sql  Servers \n Press [y] to continue"
-      private: false
+  #vars_prompt:
+   # - name: UserInput
+    #  prompt: "Please proceed with the IPS steps manually by selecring the required Installers in sql  Servers \n Press [y] to continue"
+     # private: false
   tasks:
     - name: Proceeding to the furter steps in Sql Install
-      when: UserInput == "y"
+      when: RunIPS == "true"
       debug:
         msg: "Proceeding to the further steps in Sql Install"
 
     - name: Exiting the Installation
-      when: UserInput == "n"
+      when: RunIPS == "false"
       fail:
         msg: "you selected not to do the IPS steps"
 
