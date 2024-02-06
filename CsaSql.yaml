@@ -87,7 +87,7 @@
 
     - name: Exiting the Installation
       when: RunIPS == "false"
-      #fail:
+      debug:
         msg: "you selected not to do the IPS steps"
 
 - name: Create All users in IVS  Server
