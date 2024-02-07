@@ -106,14 +106,14 @@
      - win_shell: |
          Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
-  - name: Running Index Script
-   hosts: STN-Ma
+   - name: Running Index Script
+     hosts: STN-Ma
      #vars:
      #TableManager: false
-   tasks:
-     - name: Running Index on  table maager Db
-       when: TableManager == "true"
-       win_shell: |
+     tasks:
+   - name: Running Index on  table maager Db
+     when: TableManager == "true"
+     win_shell: |
          $tmQuery = '';
          $EnterpriseEdition = Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -Query "SELECT SERVERPROPERTY('Edition') as Edition" -querytimeout 180
          if($EnterpriseEdition.Edition | Select-String -Pattern "Enterprise" -SimpleMatch)
@@ -125,17 +125,18 @@
          }
          Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile $tmQuery
         
-- name: Configure Range Table
-  hosts: STN-Ma
-  vars:
-        RunIndex: false
-  tasks:
-        - name: Adding Range Tables
-          when: RunIndex == "true"
-          win_shell: |
-              Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
-              Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "Documents\Range_MA.sql" -querytimeout 180
-              Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "Documents\Range_PM.sql" -querytimeout 180
+   - name: Configure Range Table
+     hosts: STN-Ma
+     vars:
+       RunIndex: false
+     tasks:
+  - name: Adding Range Tables
+      when: RunIndex == "true"
+      win_shell: |
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "Documents\Range_MA.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "Documents\Range_PM.sql" -querytimeout 180
+
 
 
                  
