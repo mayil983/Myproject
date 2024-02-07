@@ -106,34 +106,36 @@
      - win_shell: |
          Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
-        #- name: Running Index Script
-        #  hosts: STN-Ivs,STN-Ma
-        #  vars_files:
-        #    -Sqlvars/vars.yaml
-        #  tasks:
-        #   - name: Checking table maager Db
-        #     when: "{{TableManger}}"
-        #     win-shell: |
-        #       -set-fact:  Enterpriseedition = "Invoke-CsaSqlCommand -serverName '{{$tableManagerServer.name}}' -instanceName '{{$tableManagerServer.fullinstanceName}}' -databaseName $MasterDB -Query 'SELECT SERVERPROPERTY('Edition') as Edition'"
-        #     register: "{{Enterpriseedition}}"
-        #     when: "{{Enterpriseedition}}"
-        #     win-shell: Get-Content "$PSScriptRoot\database\TableManager_Enterprise.sql"
-        #     when: "{{Enterpriseedition}}" is not true
-        #     win-shell: get-content "$PSScriptRoot\database\TableManager_Index.sql"
-        #   - name: Tablemanager is not true
-        #     when: "{{Tablemanager}}" is not true
-        #     win-shell: "Invoke-CsaSqlCommand -serverName '{{tableManagerServer.name}}' -instanceName '{{tableManagerServer.fullinstanceName}}' -databaseName '{{db}}' -query '{{}}'"
-        #
-- name: Running Index Script
+  - name: Running Index Script
+   hosts: STN-Ma
+     #vars:
+     #TableManager: false
+   tasks:
+     - name: Running Index on  table maager Db
+       when: TableManager == "true"
+       win_shell: |
+         $tmQuery = '';
+         $EnterpriseEdition = Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -Query "SELECT SERVERPROPERTY('Edition') as Edition" -querytimeout 180
+         if($EnterpriseEdition.Edition | Select-String -Pattern "Enterprise" -SimpleMatch)
+         {
+           $tmQuery = get-content "Documents\TableManager_Enterprise.sql" -raw
+         }
+         else{
+           $tmQuery = get-content "Documents\TableManager_Index.sql" -raw
+         }
+         Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile $tmQuery
+        
+- name: Configure Range Table
   hosts: STN-Ma
   vars:
         RunIndex: false
   tasks:
-        - name: executing index script
+        - name: Adding Range Tables
           when: RunIndex == "true"
           win_shell: |
               Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
               Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "Documents\Range_MA.sql" -querytimeout 180
               Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "Documents\Range_PM.sql" -querytimeout 180
+
 
                  
