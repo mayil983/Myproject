@@ -100,8 +100,8 @@
 
 - name: Create All users in MA Server
   hosts: STN-Ma
-   tasks:
-     - win_shell: |
+  tasks:
+    - win_shell: |
          Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
 - name: Running Index Script
