@@ -50,7 +50,7 @@
   hosts: STN-Ivs,STN-Ma
   tasks:
     - name: Enable SQL Browser Service
-      ansible.windows.win_service:
+      win_service:
         name: SQL Server Browser
         start_mode: auto
         state: started
@@ -100,20 +100,16 @@
 
 - name: Create All users in MA Server
   hosts: STN-Ma
-          #  vars_files:
-          #    - Sqlvars/vars.yml
-  tasks:
+   tasks:
      - win_shell: |
          Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
-   - name: Running Index Script
-     hosts: STN-Ma
-     #vars:
-     #TableManager: false
-     tasks:
-   - name: Running Index on  table maager Db
-     when: TableManager == "true"
-     win_shell: |
+- name: Running Index Script
+  hosts: STN-Ma
+  tasks:
+    - name: Running Index on  table maager Db
+      when: TableManager == "true"
+      win_shell: |
          $tmQuery = '';
          $EnterpriseEdition = Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -Query "SELECT SERVERPROPERTY('Edition') as Edition" -querytimeout 180
          if($EnterpriseEdition.Edition | Select-String -Pattern "Enterprise" -SimpleMatch)
@@ -124,13 +120,13 @@
            $tmQuery = get-content "Documents\TableManager_Index.sql" -raw
          }
          Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile $tmQuery
-        
-   - name: Configure Range Table
-     hosts: STN-Ma
-     vars:
-       RunIndex: false
-     tasks:
-  - name: Adding Range Tables
+
+- name: Configure Range Table
+  hosts: STN-Ma
+  vars:
+    RunIndex: false
+  tasks:
+    - name: Adding Range Tables
       when: RunIndex == "true"
       win_shell: |
          Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
@@ -139,4 +135,5 @@
 
 
 
-                 
+
+                                                                     
