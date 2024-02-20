@@ -44,6 +44,53 @@
         username: "{{SQLSVCAccountName}}"
         password: "{{SQLSVCpassword}}"
 
+- name: Enable Named Pipes for SQL Server[IVS]
+  hosts: STN-Ivs
+  become_method: runas
+  tasks:
+    - win_shell: |
+        [reflection.assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo") | Out-Null
+        [reflection.assembly]::LoadWithPartialName("Microsoft.SqlServer.SqlWmiManagement") | Out-Null
+        $smo = 'Microsoft.SqlServer.Management.Smo.'
+        $wmi = new-object ($smo + 'Wmi.ManagedComputer').
+        $SQLInstance = $wmi.ServerInstances.Name
+        $uri = "$($wmi.urn.value)/ ServerInstance[@Name=`'$SQLInstance`']/ServerProtocol[@Name='Np']"
+        $Np = $wmi.GetSmoObject($uri)
+        if ($Np.IsEnabled -ne "True")
+        {
+         $Np.IsEnabled = $true
+         $Np.Alter()
+        # if ($server.serviceSuffix) {
+         Restart-Service "MSSQL`$$($SQLInstance)" -Force | Out-Null
+          }
+         # else {
+         # Restart-Service -name "MSSQLSERVER" -Force | out-null
+         # }
+         # }
+
+- name: Enable Named Pipes for SQL Server[MA]
+  hosts: STN-Ma
+  become_method: runas
+  tasks:
+    - win_shell: |
+        [reflection.assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo") | Out-Null
+        [reflection.assembly]::LoadWithPartialName("Microsoft.SqlServer.SqlWmiManagement") | Out-Null
+        $smo = 'Microsoft.SqlServer.Management.Smo.'
+        $wmi = new-object ($smo + 'Wmi.ManagedComputer').
+        $SQLInstance = $wmi.ServerInstances.Name
+        $uri = "$($wmi.urn.value)/ ServerInstance[@Name=`'$SQLInstance`']/ServerProtocol[@Name='Np']"
+        $Np = $wmi.GetSmoObject($uri)
+        if ($Np.IsEnabled -ne "True")
+        {
+         $Np.IsEnabled = $true
+          $Np.Alter()
+        # if ($server.serviceSuffix) {
+         Restart-Service "MSSQL`$$($SQLInstance)" -Force | Out-Null
+          }
+         # else {
+         # Restart-Service -name "MSSQLSERVER" -Force | out-null
+         # }
+         # }
 
 
 - name: Set service startup mode to auto and ensure it is started
