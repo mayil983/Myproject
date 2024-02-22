@@ -2,8 +2,7 @@
 - name: Starting SQL Installation
   hosts: STN-Ivs,STN-Ma
   gather_facts: no
-    # vars_files:
-    #  - Sqlvars/vars.yml
+    
   tasks:
     - name: Adding IGT Services to the local Admin
       win_group_membership:
@@ -14,8 +13,7 @@
 
 - name: Set the log on user to a domain account
   hosts: STN-Ivs
-    # vars_files:
-    #- Sqlvars/vars.yml
+    
   tasks:
     - name: Adding IGT Services to MSSQLSERVER and SQL SERVER Agent
       win_service:
@@ -30,8 +28,7 @@
 
 - name: Set the log on user to a domain account
   hosts: STN-Ma
-    # vars_files:
-    #- Sqlvars/vars.yml
+    
   tasks:
     - name: Adding IGT Services to MSSQLSERVER and SQL SERVER Agent
       win_service:
@@ -104,23 +101,20 @@
 
 - name: Create DB shells on MA Server
   hosts: STN-Ma
+    #vars:
+    #sql_query: "Documents\createDBMA.sql"
   tasks:
-    - name: clone git repo
-      ansible.builtin.git:
-        repo: "https://github.com/mayil983/Myproject.git"
-                
-    - name: Creating DB shells
-      win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "createDBMA.sql" -querytimeout 180
-      
+    - win_shell: |
+       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createDBMA.sql" -querytimeout 180
+      # register: response
 
-- name: Create DB shells on IVS Server
+- name: Create DB shells on MA Server
   hosts: STN-Ivs
     #vars:
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "CreateDBIVS.sql" -querytimeout 180
+        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\CreateDBIVS.sql" -querytimeout 180
 
 
 - name: Running IPS steps
@@ -146,13 +140,13 @@
           #    - Sqlvars/vars.yml
   tasks:
     - win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "\Documents\createallusers.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
 - name: Create All users in MA Server
   hosts: STN-Ma
   tasks:
     - win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "\Documents\createallusers.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
 
 - name: Running Index Script
   hosts: STN-Ma
@@ -164,10 +158,10 @@
          $EnterpriseEdition = Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -Query "SELECT SERVERPROPERTY('Edition') as Edition" -querytimeout 180
          if($EnterpriseEdition.Edition | Select-String -Pattern "Enterprise" -SimpleMatch)
          {
-           $tmQuery = get-content "\Documents\TableManager_Enterprise.sql" -raw
+           $tmQuery = get-content "Documents\TableManager_Enterprise.sql" -raw
          }
          else{
-           $tmQuery = get-content "\Documents\TableManager_Index.sql" -raw
+           $tmQuery = get-content "Documents\TableManager_Index.sql" -raw
          }
          Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile $tmQuery
 
@@ -179,9 +173,9 @@
     - name: Adding Range Tables
       when: RunIndex == "true"
       win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "\Documents\Range_CTA.sql" -querytimeout 180
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "\Documents\Range_MA.sql" -querytimeout 180
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "\Documents\Range_PM.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "Documents\Range_MA.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "Documents\Range_PM.sql" -querytimeout 180
 
 
 
