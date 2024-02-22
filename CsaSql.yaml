@@ -107,9 +107,9 @@
   tasks:
     - name: clone git repo
       win-git:
-	      repo: https://github.com/mayil983/Myproject.git 
-		    branch: main
-		    source: Documents\
+	    repo: https://github.com/mayil983/Myproject.git 
+		branch: main
+		source: Documents\
     - name: Creating DB shells
       win_shell: |
         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "\Documents\createDBMA.sql" -querytimeout 180
