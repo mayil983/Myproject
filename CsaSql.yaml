@@ -104,15 +104,13 @@
 
 - name: Create DB shells on MA Server
   hosts: STN-Ma
-    #vars:
-    #sql_query: "$PSScriptRoot\Documents\createDBMA.sql"
   tasks:
-    - name: clone gir repo
+    - name: clone git repo
       win_shell: git clone https://github.com/mayil983/Myproject.git Documents\
-    - name: Creating DB shells:
+    - name: Creating DB shells
       win_shell: |
-       Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "\Documents\createDBMA.sql" -querytimeout 180
-      # register: response
+        Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "\Documents\createDBMA.sql" -querytimeout 180
+      
 
 - name: Create DB shells on MA Server
   hosts: STN-Ivs
