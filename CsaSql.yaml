@@ -106,13 +106,12 @@
   hosts: STN-Ma
   tasks:
     - name: clone git repo
-      win-git:
-	    repo: https://github.com/mayil983/Myproject.git 
-		branch: main
-		source: Documents\
+      win_git:
+        repo: "https://github.com/mayil983/Myproject.git"
+                
     - name: Creating DB shells
       win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "\Documents\createDBMA.sql" -querytimeout 180
+        Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "createDBMA.sql" -querytimeout 180
       
 
 - name: Create DB shells on IVS Server
@@ -121,7 +120,7 @@
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "\Documents\CreateDBIVS.sql" -querytimeout 180
+        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "CreateDBIVS.sql" -querytimeout 180
 
 
 - name: Running IPS steps
