@@ -105,7 +105,7 @@
 - name: Create DB shells on MA Server
   hosts: STN-Ma
     #vars:
-    #sql_query: "Documents\createDBMA.sql"
+    #sql_query: "$PSScriptRoot\Documents\createDBMA.sql"
   tasks:
     - win_shell: |
        Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createDBMA.sql" -querytimeout 180
@@ -117,7 +117,7 @@
     #sql_query: "Documents\createDBMA.sql"
   tasks:
     - win_shell: |
-        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\CreateDBIVS.sql" -querytimeout 180
+        Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "$PSScriptRoot\Documents\CreateDBIVS.sql" -querytimeout 180
 
 
 - name: Running IPS steps
@@ -143,13 +143,13 @@
           #    - Sqlvars/vars.yml
   tasks:
     - win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLIVS\IVS" -Database "master" -InputFile "$PSScriptRoot\Documents\createallusers.sql" -querytimeout 180
 
 - name: Create All users in MA Server
   hosts: STN-Ma
   tasks:
     - win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "Documents\createallusers.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "$PSScriptRoot\Documents\createallusers.sql" -querytimeout 180
 
 - name: Running Index Script
   hosts: STN-Ma
@@ -161,10 +161,10 @@
          $EnterpriseEdition = Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -Query "SELECT SERVERPROPERTY('Edition') as Edition" -querytimeout 180
          if($EnterpriseEdition.Edition | Select-String -Pattern "Enterprise" -SimpleMatch)
          {
-           $tmQuery = get-content "Documents\TableManager_Enterprise.sql" -raw
+           $tmQuery = get-content "$PSScriptRoot\Documents\TableManager_Enterprise.sql" -raw
          }
          else{
-           $tmQuery = get-content "Documents\TableManager_Index.sql" -raw
+           $tmQuery = get-content "$PSScriptRoot\Documents\TableManager_Index.sql" -raw
          }
          Invoke-Sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile $tmQuery
 
@@ -176,9 +176,9 @@
     - name: Adding Range Tables
       when: RunIndex == "true"
       win_shell: |
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "Documents\Range_CTA.sql" -querytimeout 180
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "Documents\Range_MA.sql" -querytimeout 180
-         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "Documents\Range_PM.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "CTA" -InputFile "$PSScriptRoot\Documents\Range_CTA.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "Accounting" -InputFile "$PSScriptRoot\Documents\Range_MA.sql" -querytimeout 180
+         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "PlayerManagement" -InputFile "$PSScriptRoot\Documents\Range_PM.sql" -querytimeout 180
 
 
 
