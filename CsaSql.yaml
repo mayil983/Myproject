@@ -106,7 +106,7 @@
   hosts: STN-Ma
   tasks:
     - name: clone git repo
-      win_git:
+      ansible.builtin.git:
         repo: "https://github.com/mayil983/Myproject.git"
                 
     - name: Creating DB shells
