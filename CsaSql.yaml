@@ -106,13 +106,16 @@
   hosts: STN-Ma
   tasks:
     - name: clone git repo
-      win_shell: git clone https://github.com/mayil983/Myproject.git Documents\
+      win-git:
+	      repo: https://github.com/mayil983/Myproject.git 
+		    branch: main
+		    source: Documents\
     - name: Creating DB shells
       win_shell: |
         Invoke-sqlcmd -ServerInstance "STN-SQLMA\MA" -Database "master" -InputFile "\Documents\createDBMA.sql" -querytimeout 180
       
 
-- name: Create DB shells on MA Server
+- name: Create DB shells on IVS Server
   hosts: STN-Ivs
     #vars:
     #sql_query: "Documents\createDBMA.sql"
